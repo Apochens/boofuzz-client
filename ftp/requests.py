@@ -21,7 +21,14 @@ def make_format_2(command) -> Request:
 
 def make_format_3(command, value) -> Request:
     """<CMD><L><SP><VAL><R><CRLF>"""
-    return Request(command[0])
+    return Request(command[0], children=(
+        command[1],
+        FTPBody.left,
+        FTPBody.SP,
+        value,
+        FTPBody.right,
+        FTPBody.CRLF
+    ))
 
 user = make_format_1(FTPCommand.USER, FTPBody.username)
 passw = make_format_1(FTPCommand.PASS, FTPBody.password)
@@ -112,17 +119,19 @@ def connect_request(session: Session) -> Session:
     for cmd in cmd2:
         edges.append((passw, cmd))
 
-    sepcial_edges = [
+    edges = edges + [
+        (passw, rnfr),
         (rnfr, rnto),
+        (passw, rest),
         (rest, appe),
         (rest, stor),
         (rest, retr)
     ]
-    for cmd in sepcial_edges:
-        edges.append((passw, cmd))
 
     # Instantiation
     for (src, dst) in edges:
+        print(f'>> Now connecting {dst.name} to {src.name}:{src.id}', end=" ")
         session.connect(src, dst)
+        print(f'[Connected {dst.name}:{dst.id}]')
 
     return session
