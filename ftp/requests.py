@@ -34,9 +34,24 @@ rein = make_format_2(FTPCommand.REIN)
 port = make_format_1(FTPCommand.PORT, FTPBody.host_port)
 pasv = make_format_2(FTPCommand.PASV)
 
-type_AE = make_format_1(FTPCommand.TYPE, FTPBody.type_code_AE)
-type_I = make_format_1(FTPCommand.TYPE, FTPBody.type_code_I)
-type_L = make_format_1(FTPCommand.TYPE, FTPBody.type_code_L)
+type_AE = Request("TYPE-AE", children=(
+        FTPCommand.TYPE[1],
+        FTPBody.SP,
+        FTPBody.type_code_AE,
+        FTPBody.CRLF
+    ))
+type_I = Request("TYPE-I", children=(
+        FTPCommand.TYPE[1],
+        FTPBody.SP,
+        FTPBody.type_code_I,
+        FTPBody.CRLF
+    ))
+type_L = Request("TYPE-L", children=(
+        FTPCommand.TYPE[1],
+        FTPBody.SP,
+        FTPBody.type_code_L,
+        FTPBody.CRLF
+    ))
 
 stru = make_format_1(FTPCommand.STRU, FTPBody.structure_code)
 mode = make_format_1(FTPCommand.MODE, FTPBody.mode_code)
