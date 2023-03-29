@@ -45,17 +45,18 @@ stor = make_format_1(FTPCommand.STOR, FTPBody.pathname)
 stou = make_format_2(FTPCommand.STOU)
 appe = make_format_1(FTPCommand.APPE, FTPBody.pathname)
 
-allo = Request('ALLO', children=(
-    FTPBody.SP,
-    FTPBody.decimal_integer,
-    FTPBody.left,
-    FTPBody.SP,
-    FTPBody.R,
-    FTPBody.SP,
-    FTPBody.decimal_integer,
-    FTPBody.right,
-    FTPBody.CRLF
-))
+# allo = Request(FTPCommand.ALLO[0], children=(
+#     FTPCommand.ALLO[1],
+#     FTPBody.SP,
+#     FTPBody.decimal_integer,
+#     FTPBody.left,
+#     FTPBody.SP,
+#     FTPBody.R,
+#     FTPBody.SP,
+#     FTPBody.decimal_integer,
+#     FTPBody.right,
+#     FTPBody.CRLF
+# ))
 
 rest = make_format_1(FTPCommand.REST, FTPBody.marker)
 rnfr = make_format_1(FTPCommand.RNFR, FTPBody.pathname)
@@ -75,12 +76,37 @@ noop = make_format_2(FTPCommand.NOOP)
 
 
 def connect_request(session: Session) -> Session:
+
     edges = [
-        (session.root, user)
+        (session.root, user),
         (user, passw),
-        
+        (passw, acct),
     ]
 
+    cmd1 = [
+        abor, #allo, 
+        dele, cwd, cdup, smnt, help, mode, noop, pasv, 
+        quit, site, port, syst, stat, rmd, mkd, pwd, stru, type_AE, type_I, type_L
+    ]
+    for cmd in cmd1:
+        edges.append((passw, cmd))
+
+    cmd2 = [
+        appe, list, nlst, rein, retr, stor, stou
+    ]
+    for cmd in cmd2:
+        edges.append((passw, cmd))
+
+    sepcial_edges = [
+        (rnfr, rnto),
+        (rest, appe),
+        (rest, stor),
+        (rest, retr)
+    ]
+    for cmd in sepcial_edges:
+        edges.append((passw, cmd))
+
+    # Instantiation
     for (src, dst) in edges:
         session.connect(src, dst)
 

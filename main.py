@@ -1,5 +1,5 @@
 from boofuzz import *
-from .ftp.requests import connect_request
+from ftp.requests import connect_request
 
 
 if __name__ == '__main__':
@@ -10,4 +10,4 @@ if __name__ == '__main__':
     )
 
     connect_request(session)
-    session.fuzz()
+    # session.fuzz()
